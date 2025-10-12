@@ -1,0 +1,11 @@
+ version: "3.9"
+ services:
+   localstack:
+     image: localstack/localstack
+     ports:
+       - "4566:4566" # Use port 4566 for both DynamoDB and S3
+     environment:
+       - SERVICES=dynamodb
+       - AWS_ACCESS_KEY_ID=test
+       - AWS_SECRET_ACCESS_KEY=test
+       - AWS_REGION=us-east-1
