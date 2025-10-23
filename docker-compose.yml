@@ -3,9 +3,36 @@
    localstack:
      image: localstack/localstack
      ports:
-       - "4566:4566" # Use port 4566 for both DynamoDB and S3
+       - "4566:4566" # PORT MAPPING Use port 4566 for both DynamoDB and S3
      environment:
        - SERVICES=dynamodb
        - AWS_ACCESS_KEY_ID=test
        - AWS_SECRET_ACCESS_KEY=test
        - AWS_REGION=us-east-1
+
+#TA ---> Dash, Tagging, Report,
+#
+# LLM
+# ||
+#Agent (AWS)
+# ||
+#Token Limit (1000 token) per AWS Dynamo
+# ||
+#Triming ...
+# ||
+#Router Agent
+#          ||
+#Dash --  Tagging -- Report (Research People) ||
+#          ||
+#      Agent (AWS)
+#          ||
+#       Summarize
+#          ||
+#      Token Update + Message storage
+#          ||
+#         end
+#
+#tool ---> we are calling a mcp server
+#
+#
+#dashboard-server, MCP server (API create, delete, update)

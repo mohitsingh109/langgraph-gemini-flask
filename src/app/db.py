@@ -6,12 +6,14 @@ TABLE = os.getenv("DYNAMO_TABLE_NAME", "conversation")
 REGION = os.getenv("AWS_REGION", "us-east-1")
 LOCALSTACK_URL = os.getenv("LOCALSTACK_URL", "http://0.0.0.0:4566")
 
+# AWS Connection
 _session = boto3.session.Session(
     aws_access_key_id=os.getenv("AWS_ACCESS_KEY_ID", "test"),
     aws_secret_access_key=os.getenv("AWS_SECRETS_ACCESS_KEY", "test"),
     region_name=REGION
 )
 
+# Dynamo DB connection
 _dynamo = _session.resource(
     "dynamodb",
     endpoint_url=LOCALSTACK_URL,
@@ -20,11 +22,13 @@ _dynamo = _session.resource(
 
 
 def ensure_table():
-    existing = [t.name for t in _dynamo.tables.all()] # list compression
+    existing = [t.name for t in _dynamo.tables.all()] # python list compression
     if TABLE in existing:
         print("Table already present")
         return _dynamo.Table(TABLE)
 
+    # Sharded database - (Multiple system)
+    # Consistent Hashing Algo
     _dynamo.create_table(
         TableName = TABLE,
         KeySchema= [
@@ -39,7 +43,7 @@ def ensure_table():
                 'AttributeType': 'S'
             }
         ],
-        BillingMode='PAY_PER_REQUEST'
+        BillingMode='PAY_PER_REQUEST' # Provisioned
     )
 
 
