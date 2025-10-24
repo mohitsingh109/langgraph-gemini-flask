@@ -10,7 +10,7 @@ Output: "Issue: 500 on coupon SAVE10 during checkout; Scope ~10%. Priority: High
 
 from typing import Dict, Any
 from langgraph.graph import StateGraph, START, END
-from llm import call_gemini
+from app.llm import call_gemini
 
 def summarize_ticket(state: Dict[str, Any]) -> Dict[str, Any]:
     message = state["message"] # Input message from user
@@ -21,7 +21,7 @@ def summarize_ticket(state: Dict[str, Any]) -> Dict[str, Any]:
     - Suggested Priority (Low/Medium/High)
     <ticket>
     {message}
-    Answer in two lines:
+    Answer in two lines in .md format:
     Summary: ...
     Priority: ...
     """
@@ -36,7 +36,7 @@ def build_graph():
     g.add_node("summarize_ticket", summarize_ticket)
     g.add_edge(START, "summarize_ticket")
     g.add_edge("summarize_ticket", END)
-    return  g.compile()
+    return g.compile()
 
 
 # A single agent graph
@@ -46,7 +46,6 @@ def run_graph(message: str) -> str:
     graph_input = {"message": message}
     out = _graph.invoke(graph_input)
     return out["result"]
-
 
 # while True:
 #     user_input = input("Enter: ")

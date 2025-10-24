@@ -47,3 +47,65 @@ def ensure_table():
     )
 
 
+def get_history(conversation_id: str):
+    tbl = _dynamo.Table(TABLE)
+    resp = tbl.get_item(Key = {"conversation_id": conversation_id})
+    return resp.get("Item", {}).get("history", [])
+
+
+def put_message(conversation_id: str, role: str, content: str):
+    tbl = _dynamo.Table(TABLE)
+    tbl.update_item(
+        Key = {"conversation_id": conversation_id},
+        UpdateExpression = "SET #hist = list_append(if_not_exists(#hist, :empty), :msg)",
+        ExpressionAttributeNames = {
+            "#hist": "history"
+        },
+        ExpressionAttributeValues = {
+            ":empty": [],
+            ":msg": [{"role": role, "content": content}]
+        },
+        ReturnValues="UPDATED_NEW"
+    )
+
+
+
+"""
+Dynamo get_item response payload
+https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb/table/get_item.html
+{
+    'Item': {
+        'history': [
+            {"role": "user", "content": "What is today weather"},
+            {"role": "ai", "content": "Today is sunny looks nice to visit beach" },
+            ...,
+            .....
+        ]
+    },
+    'ConsumedCapacity': {
+        'TableName': 'string',
+        'CapacityUnits': 123.0,
+        'ReadCapacityUnits': 123.0,
+        'WriteCapacityUnits': 123.0,
+        'Table': {
+            'ReadCapacityUnits': 123.0,
+            'WriteCapacityUnits': 123.0,
+            'CapacityUnits': 123.0
+        },
+        'LocalSecondaryIndexes': {
+            'string': {
+                'ReadCapacityUnits': 123.0,
+                'WriteCapacityUnits': 123.0,
+                'CapacityUnits': 123.0
+            }
+        },
+        'GlobalSecondaryIndexes': {
+            'string': {
+                'ReadCapacityUnits': 123.0,
+                'WriteCapacityUnits': 123.0,
+                'CapacityUnits': 123.0
+            }
+        }
+    }
+}
+"""
